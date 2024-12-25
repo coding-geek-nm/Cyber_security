@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import axios from 'axios';
+import './OtpVerification.css';  // Create a separate CSS for OTP verification page
 
 const OtpVerification = () => {
   const [otp, setOtp] = useState('');
@@ -27,20 +28,29 @@ const OtpVerification = () => {
   };
 
   return (
-    <div>
-      <h2>OTP Verification</h2>
-      <form onSubmit={handleSubmit}>
-        <input 
-          type="text" 
-          placeholder="Enter OTP" 
-          value={otp} 
-          onChange={(e) => setOtp(e.target.value)} 
-        />
-        <button type="submit">Verify OTP</button>
-      </form>
-      {error && <p>{error}</p>}
+    <div className="otp-container">
+      <div className="otp-card">
+        <div className="text-center">
+          <h2>OTP Verification</h2>
+          <p>Please enter the OTP sent to your phone</p>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            className="form-input mb-4"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            maxLength="6"
+            required
+          />
+          <button type="submit" className="btn-verify">Verify OTP</button>
+        </form>
+        {error && <p className="error-message">{error}</p>}
+      </div>
     </div>
   );
 };
 
 export default OtpVerification;
+
