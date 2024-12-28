@@ -4,7 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import userRoutes from './routes/user.routes.js';
 import User from './models/user.models.js'; // Adjust the path as necessary
-
+import Formroutes from './routes/Form.routes.js';
 // Load environment variables
 dotenv.config();
 
@@ -17,7 +17,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
-
+app.use('/api/form', Formroutes);
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

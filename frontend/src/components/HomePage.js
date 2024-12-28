@@ -3,10 +3,11 @@ import axios from "axios";
 
 const Homepage = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    electionId: "",
-    phone: "",
+    Name: "",
+    election_id: "",
+    phone_no: "",
     email: "",
+    party_name: "",  // Corrected field name to match the backend
   });
 
   const [message, setMessage] = useState("");
@@ -22,22 +23,21 @@ const Homepage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/submit", formData);
+      const response = await axios.post("http://localhost:8000/api/form/submit", formData);
       setMessage(response.data.message);
     } catch (error) {
       console.error("Error submitting form:", error);
       setMessage("An error occurred. Please try again.");
     }
   };
+
   const styles = {
     body: {
       margin: 0,
       padding: 0,
       fontFamily: "'Roboto', Arial, sans-serif",
       backgroundImage: "url('https://img.freepik.com/free-vector/vote-indian-election-background-with-india-map-design_1017-50103.jpg')",
-      // backgroundSize: "cover",
       backgroundRepeat: "repeat",
-      // backgroundPosition: "center",
       height: "100vh",
       display: "flex",
       alignItems: "center",
@@ -108,36 +108,36 @@ const Homepage = () => {
         <h1 style={styles.title}>Election Form</h1>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label htmlFor="name" style={styles.label}>Name:</label>
+            <label htmlFor="Name" style={styles.label}>Name:</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="Name"
+              name="Name"
+              value={formData.Name}
               onChange={handleChange}
               required
               style={styles.input}
             />
           </div>
           <div style={styles.formGroup}>
-            <label htmlFor="electionId" style={styles.label}>Election ID Number:</label>
+            <label htmlFor="election_id" style={styles.label}>Election ID Number:</label>
             <input
               type="text"
-              id="electionId"
-              name="electionId"
-              value={formData.electionId}
+              id="election_id"
+              name="election_id"
+              value={formData.election_id}
               onChange={handleChange}
               required
               style={styles.input}
             />
           </div>
           <div style={styles.formGroup}>
-            <label htmlFor="phone" style={styles.label}>Phone Number:</label>
+            <label htmlFor="phone_no" style={styles.label}>Phone Number:</label>
             <input
               type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
+              id="phone_no"
+              name="phone_no"
+              value={formData.phone_no}
               onChange={handleChange}
               required
               style={styles.input}
@@ -150,6 +150,18 @@ const Homepage = () => {
               id="email"
               name="email"
               value={formData.email}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label htmlFor="party_name" style={styles.label}>Party</label>
+            <input
+              type="text"
+              id="party_name"
+              name="party_name"  // Corrected field name to match the backend
+              value={formData.party_name}
               onChange={handleChange}
               required
               style={styles.input}

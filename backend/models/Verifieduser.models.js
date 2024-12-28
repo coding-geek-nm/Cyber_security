@@ -10,17 +10,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-    },
-    Age:{
-        type:Number,
-        
-
-    },
-    otp: {
-        type: String,
-    },
+    }
 }, { timestamps: true });
 
-const User = mongoose.model('User', userSchema);
+const  VerifiedUser= mongoose.model('VerifiedUser', userSchema);
 
-export default User;
+export default VerifiedUser;
