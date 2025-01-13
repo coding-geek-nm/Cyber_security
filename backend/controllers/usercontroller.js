@@ -7,7 +7,7 @@ dotenv.config();
 import crypto from 'crypto';
 
 // Use a pre-defined key from environment variables for consistency
-const secretKey = Buffer.from(process.env.SECRET_KEY, 'hex');  // Make sure to store and use the key securely
+const secretKey = Buffer.from(process.env.SECRET_KEY, 'hex'); // Make sure to store and use the key securely
 const algorithm = 'aes-256-cbc'; // AES encryption algorithm
 const iv = crypto.randomBytes(16); // Initialization vector for AES
 
@@ -25,16 +25,16 @@ class UserController {
         if (!phone || !aadhaar) {
             return res.status(400).send({ status: 'failed', message: 'Phone and Aadhaar are required' });
         }
-        
+
         try {
             // Check if user exists and Aadhaar matches
             const user = await User.findOne({ phone, aadhaar });
- 
+
             if (!user) {
                 return res.status(404).send({ status: 'failed', message: 'User not found or Aadhaar does not match' });
             }
-            
-            if(user.Age<18){
+
+            if (user.Age < 18) {
                 return res.status(404).send({ status: 'failed', message: 'User is not eligible' });
             }
 
@@ -84,23 +84,68 @@ class UserController {
                 return { iv: iv.toString('hex'), encryptedData: encrypted };
             };
 
-            const encrypted_adhar = encrypt(user.aadhaar);
-            const encrypted_phone = encrypt(user.phone);
+            // Encrypt Aadhaar and phone details
+            const encryptedAadhaar = encrypt(user.aadhaar);
+            const encryptedPhone = encrypt(user.phone);
 
             // Create a new VerifiedUser with encrypted details
             const verifiedUser = new VerifiedUser({
-                phone: encrypted_phone.encryptedData,
-                aadhaar: encrypted_adhar.encryptedData,
-                iv: encrypted_phone.iv  // Store IV for later decryption
+                phone: encryptedPhone.encryptedData,
+                aadhaar: encryptedAadhaar.encryptedData,
+                iv: encryptedPhone.iv, // Store IV for later decryption (if needed in the future)
             });
 
             await verifiedUser.save();
 
-            res.status(200).send({ status: 'success', message: 'OTP verified successfully' });
+            // Generate three random numbers for second verification
+            const correctNumber = Math.floor(Math.random() * 9000) + 1000;
+            const secondVerificationNumbers = [
+                correctNumber,
+                Math.floor(Math.random() * 9000) + 1000,
+                Math.floor(Math.random() * 9000) + 1000,
+            ].sort(() => Math.random() - 0.5);
 
+            // Save the correct number and options in the user model
+            user.correctNumber = correctNumber;
+            user.secondverificationnumber = secondVerificationNumbers;
+            await user.save();
+            await client.messages.create({
+                from: process.env.TWILIO_PHONE_NUMBER, // Replace with your Twilio number
+                body: `Your Number is ${correctNumber}`,
+                to: phone,
+            });
+            res.status(200).send({
+                status: 'success',
+                message: 'OTP verified successfully',
+                secondVerificationNumbers,
+            });
         } catch (error) {
             console.error('Error verifying OTP:', error);
             res.status(500).send({ status: 'failed', message: 'Error verifying OTP' });
+        }
+    }
+
+    // Method to verify the second step
+    static async verifySecondStep(req, res) {
+        const { phone, selectedNumber } = req.body;
+
+        // Validate input
+        if (!phone || !selectedNumber) {
+            return res.status(400).send({ status: 'failed', message: 'Phone and selected number are required' });
+        }
+
+        try {
+            // Check if the selected number matches the correct number
+            const user = await User.findOne({ phone });
+
+            if (!user || user.correctNumber !== parseInt(selectedNumber)) {
+                return res.status(400).send({ status: 'failed', message: 'Second verification failed' });
+            }
+
+            res.status(200).send({ status: 'success', message: 'Second verification successful' });
+        } catch (error) {
+            console.error('Error during second verification:', error);
+            res.status(500).send({ status: 'failed', message: 'Error during second verification' });
         }
     }
 }

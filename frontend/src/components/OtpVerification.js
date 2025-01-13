@@ -19,8 +19,14 @@ const OtpVerification = () => {
 
     try {
       const response = await axios.post('http://localhost:8000/api/users/verify', { phone, otp });
+      console.log(response);
       if (response.status === 200) {
-        navigate('/home');
+        navigate('/second-step-verification', {
+          state: {
+            phone,
+            secondVerificationNumbers: response.data.secondVerificationNumbers, // Pass the numbers to the next step
+          },
+        });
       }
     } catch (error) {
       setError(error.response.data.message || 'Invalid OTP');

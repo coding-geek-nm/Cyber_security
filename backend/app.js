@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import userRoutes from './routes/user.routes.js';
 import User from './models/user.models.js'; // Adjust the path as necessary
 import Formroutes from './routes/Form.routes.js';
+import CameraRoutes from './routes/camera.routes.js';
 // Load environment variables
 dotenv.config();
 
@@ -15,9 +16,10 @@ app.use(cors({
     origin: '*', // Update for production
 }));
 app.use(express.json());
-
+app.use("/uploads", express.static("uploads"));
 app.use('/api/users', userRoutes);
 app.use('/api/form', Formroutes);
+app.use('/api/camera', CameraRoutes);
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
